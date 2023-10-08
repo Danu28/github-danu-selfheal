@@ -28,18 +28,7 @@ public interface script {
             "}\n" +
             "return JSON.stringify(items);";
 
-    String skippedAttribute = "====\n" +
-            "    Healenium-web Copyright (C) 2019 EPAM\n" +
-            "    Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
-            "    you may not use this file except in compliance with the License.\n" +
-            "    You may obtain a copy of the License at\n" +
-            "           http://www.apache.org/licenses/LICENSE-2.0\n" +
-            "    Unless required by applicable law or agreed to in writing, software\n" +
-            "    distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-            "    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-            "    See the License for the specific language governing permissions and\n" +
-            "    limitations under the License.\n" +
-            "====\n" +
+    String skippedAttribute =
             "\n" +
             "style\n" +
             "onChange\n" +
@@ -55,20 +44,7 @@ public interface script {
             "formenctype\n" +
             "formnovalidate";
 
-    String index = "<!--\n" +
-            "\n" +
-            "    Healenium-web Copyright (C) 2019 EPAM\n" +
-            "    Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
-            "    you may not use this file except in compliance with the License.\n" +
-            "    You may obtain a copy of the License at\n" +
-            "           http://www.apache.org/licenses/LICENSE-2.0\n" +
-            "    Unless required by applicable law or agreed to in writing, software\n" +
-            "    distributed under the License is distributed on an \"AS IS\" BASIS,\n" +
-            "    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
-            "    See the License for the specific language governing permissions and\n" +
-            "    limitations under the License.\n" +
-            "\n" +
-            "-->\n" +
+    String index =
             "<!DOCTYPE html>\n" +
             "<html lang=\"en\">\n" +
             "<head>\n" +
@@ -100,7 +76,7 @@ public interface script {
             "\n" +
             "        .logo-title {\n" +
             "            margin-left: 10px;\n" +
-            "            font-size: 14px;\n" +
+            "            font-size: 18px;\n" +
             "            font-family: Roboto, sans-serif;\n" +
             "            font-weight: 600;\n" +
             "            color: #000000;\n" +
@@ -337,10 +313,7 @@ public interface script {
             "    <body>\n" +
             "        <header class=\"header\">\n" +
             "            <div class=\"content-wrapper\">\n" +
-            "                <div class=\"logo\">\n" +
-            "                    <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\"><g fill=\"none\" fill-rule=\"evenodd\" transform=\"rotate(45 10 10)\"><path fill=\"#F8F8F8\" stroke=\"#000\" stroke-width=\"2\" d=\"M0 10a5 5 0 0 1 5-5h10a5 5 0 0 1 0 10H5a5 5 0 0 1-5-5z\"></path><path fill=\"#F8F8F8\" stroke=\"#000\" stroke-width=\"2\" d=\"M10 0a5 5 0 0 1 5 5v10a5 5 0 0 1-10 0V5a5 5 0 0 1 5-5z\"></path><rect width=\"4\" height=\"6\" x=\"8\" y=\"7\" fill=\"#000\" rx=\"2\"></rect></g></svg>\n" +
-            "                </div>\n" +
-            "                <span class=\"logo-title\">SHA</span>\n" +
+            "                <span class=\"logo-title\">SELF HEAL</span>\n" +
             "            </div>\n" +
             "        </header>\n" +
             "        <main class=\"content-wrapper\">\n" +

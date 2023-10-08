@@ -7,10 +7,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.MalformedURLException;
 import java.util.Properties;
 
 public class Test {
@@ -19,7 +17,14 @@ public class Test {
 
     public static void main(String[] args) {
 
-        String url = "file:///C:/Users/KaDh550/Desktop/Sample.html";
+        File htmlFile = new File("src/test/resources/Sample.html");
+
+        String url = null;
+        try {
+            url = htmlFile.toURI().toURL().toString();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
 
         WebDriverManager.chromedriver().setup();
         WebDriver delete = new ChromeDriver();
