@@ -14,8 +14,12 @@ import org.openqa.selenium.By;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.nio.file.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -34,6 +38,7 @@ public class FileSystemPathStorage implements PathStorage {
     private final Path reportsPath;
     private final ObjectMapper objectMapper = initMapper();
 
+
     /**
      * Creates a new instance of FileSystemPathStorage.
      *
@@ -42,9 +47,6 @@ public class FileSystemPathStorage implements PathStorage {
     public FileSystemPathStorage(Properties properties) {
         basePath = Paths.get(properties.getProperty("basePath"));
         reportsPath = Paths.get(properties.getProperty("reportPath"));
-        cleanDirectory(Paths.get(properties.getProperty("screenshotPath")).toFile());
-        basePath.toFile().mkdirs();
-        reportsPath.toFile().mkdirs();
     }
 
     private ObjectMapper initMapper() {
@@ -131,39 +133,6 @@ public class FileSystemPathStorage implements PathStorage {
 
     private String getFileName(String context) {
         return context.matches(FILENAME_REGEX) && context.length() < MAX_FILE_LENGTH ? context : DigestUtils.md5Hex(context);
-    }
-
-    private static void cleanDirectory(File directory) {
-        if (!directory.exists()) {
-            System.out.println("Directory does not exist: " + directory.getAbsolutePath());
-            return;
-        }
-
-        if (!directory.isDirectory()) {
-            System.out.println("Not a directory: " + directory.getAbsolutePath());
-            return;
-        }
-
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    cleanDirectory(file);
-                }
-                if (file.delete()) {
-                    System.out.println("Deleted file: " + file.getAbsolutePath());
-                } else {
-                    System.err.println("Failed to delete file: " + file.getAbsolutePath());
-                }
-            }
-        }
-
-        // After deleting all files and subdirectories, delete the directory itself
-        if (directory.delete()) {
-            System.out.println("Deleted directory: " + directory.getAbsolutePath());
-        } else {
-            System.err.println("Failed to delete directory: " + directory.getAbsolutePath());
-        }
     }
 
     private static class NodeDeserializer extends JsonDeserializer<Node> {

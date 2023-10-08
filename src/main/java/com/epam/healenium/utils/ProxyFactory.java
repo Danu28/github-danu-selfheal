@@ -1,19 +1,17 @@
 package com.epam.healenium.utils;
 
 import com.epam.healenium.SelfHealingDriver;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.WrapsElement;
+import org.openqa.selenium.interactions.Interactive;
+import org.openqa.selenium.interactions.Locatable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.stream.Stream;
-
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.HasInputDevices;
-import org.openqa.selenium.interactions.Interactive;
-import org.openqa.selenium.interactions.Locatable;
-import org.openqa.selenium.internal.WrapsElement;
 
 /**
  * Utility class for creating dynamic proxies.
@@ -29,7 +27,7 @@ public final class ProxyFactory {
      * @return A proxy instance of the WebDriver.
      */
     public static <T extends WebDriver> SelfHealingDriver createDriverProxy(ClassLoader loader, InvocationHandler handler, Class<T> clazz) {
-        Class<?>[] interfaces = Stream.concat(Arrays.stream(clazz.getInterfaces()), Stream.of(JavascriptExecutor.class, SelfHealingDriver.class, HasInputDevices.class, Interactive.class))
+        Class<?>[] interfaces = Stream.concat(Arrays.stream(clazz.getInterfaces()), Stream.of(JavascriptExecutor.class, SelfHealingDriver.class, Interactive.class, Interactive.class))
                 .distinct()
                 .toArray(Class<?>[]::new);
         return (SelfHealingDriver) Proxy.newProxyInstance(loader, interfaces, handler);

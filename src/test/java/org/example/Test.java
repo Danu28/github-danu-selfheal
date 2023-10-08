@@ -4,6 +4,7 @@ import com.epam.healenium.SelfHealingDriver;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.io.FileInputStream;
@@ -22,13 +23,17 @@ public class Test {
 
         WebDriverManager.chromedriver().setup();
         WebDriver delete = new ChromeDriver();
+
+        SelfHealingDriver.setup();
         driver = SelfHealingDriver.create(delete);
 
         driver.manage().window().maximize();
         driver.get(url);
 
-        driver.findElement(By.xpath("//*[@id=\"loginButton\"]")).click();
+        By locator = By.xpath("//*[@id=\"loginButton\"]");
 
+        WebElement element = driver.findElement(locator);
+        element.click();
         driver.quit();
     }
 }

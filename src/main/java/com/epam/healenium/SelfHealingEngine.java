@@ -45,7 +45,6 @@ public class SelfHealingEngine {
     private final WebDriver webDriver;
     private final PathStorage storage;
     private final int recoveryTries;
-    private final double scoreCap;
     private final List<Set<SelectorComponent>> selectorDetailLevels;
 
     /**
@@ -59,7 +58,6 @@ public class SelfHealingEngine {
         this.config = config;
         this.storage = new FileSystemPathStorage(config);
         this.recoveryTries = Integer.parseInt(config.getProperty("recovery-tries"));
-        this.scoreCap = Double.parseDouble(config.getProperty("score-cap"));
 
         // Initialize selectorDetailLevels
         this.selectorDetailLevels = initSelectorDetailLevels();

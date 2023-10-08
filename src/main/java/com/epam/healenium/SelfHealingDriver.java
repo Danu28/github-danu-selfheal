@@ -10,6 +10,15 @@ import java.util.Properties;
 public interface SelfHealingDriver extends WebDriver {
 
     /**
+     * Configures the WebDriver with the appropriate settings using ConfigFactory.
+     */
+    static void setup() {
+        ConfigFactory.setConfig();
+    }
+
+
+
+    /**
      * Get the current self-healing engine associated with this driver.
      *
      * @return The self-healing engine.
