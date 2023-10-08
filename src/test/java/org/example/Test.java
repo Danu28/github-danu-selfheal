@@ -1,6 +1,7 @@
 package org.example;
 
 import com.epam.healenium.SelfHealingDriver;
+import com.epam.healenium.utils.ConfigFactory;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;

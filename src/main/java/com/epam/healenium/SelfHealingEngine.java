@@ -8,7 +8,9 @@ import com.epam.healenium.annotation.DisableHealing;
 import com.epam.healenium.data.FileSystemPathStorage;
 import com.epam.healenium.data.LocatorInfo;
 import com.epam.healenium.data.PathStorage;
+import com.epam.healenium.handlers.proxy.SelfHealingProxyInvocationHandler;
 import com.epam.healenium.treecomparing.*;
+import com.epam.healenium.utils.ProxyFactory;
 import com.epam.healenium.utils.ResourceReader;
 import com.epam.healenium.utils.StackUtils;
 import com.fasterxml.jackson.core.JsonParser;
@@ -61,6 +63,31 @@ public class SelfHealingEngine {
 
         // Initialize selectorDetailLevels
         this.selectorDetailLevels = initSelectorDetailLevels();
+    }
+
+
+    /**
+     * Create a self-healing driver with custom configuration.
+     *
+     * @param delegate The delegate WebDriver.
+     * @param config   The custom configuration properties.
+     * @return A self-healing driver instance.
+     */
+    static SelfHealingDriver create(WebDriver delegate, Properties config) {
+        return create(new SelfHealingEngine(delegate, config));
+    }
+
+    /**
+     * Create a self-healing driver with a pre-configured self-healing engine.
+     *
+     * @param engine The self-healing engine instance.
+     * @return A self-healing driver instance.
+     */
+    public static SelfHealingDriver create(SelfHealingEngine engine) {
+        ClassLoader classLoader = SelfHealingDriver.class.getClassLoader();
+        Class<? extends WebDriver> driverClass = engine.getWebDriver().getClass();
+        SelfHealingProxyInvocationHandler handler = new SelfHealingProxyInvocationHandler(engine);
+        return ProxyFactory.createDriverProxy(classLoader, handler, driverClass);
     }
 
     /**

@@ -16,15 +16,6 @@ public interface SelfHealingDriver extends WebDriver {
         ConfigFactory.setConfig();
     }
 
-
-
-    /**
-     * Get the current self-healing engine associated with this driver.
-     *
-     * @return The self-healing engine.
-     */
-    SelfHealingEngine getCurrentEngine();
-
     /**
      * Get the delegate WebDriver that this self-healing driver wraps.
      *
@@ -41,30 +32,6 @@ public interface SelfHealingDriver extends WebDriver {
      */
     static SelfHealingDriver create(WebDriver delegate) {
         Properties config = ConfigFactory.getDefaultConfig();
-        return create(delegate, config);
-    }
-
-    /**
-     * Create a self-healing driver with custom configuration.
-     *
-     * @param delegate The delegate WebDriver.
-     * @param config   The custom configuration properties.
-     * @return A self-healing driver instance.
-     */
-    static SelfHealingDriver create(WebDriver delegate, Properties config) {
-        return create(new SelfHealingEngine(delegate, config));
-    }
-
-    /**
-     * Create a self-healing driver with a pre-configured self-healing engine.
-     *
-     * @param engine The self-healing engine instance.
-     * @return A self-healing driver instance.
-     */
-    static SelfHealingDriver create(SelfHealingEngine engine) {
-        ClassLoader classLoader = SelfHealingDriver.class.getClassLoader();
-        Class<? extends WebDriver> driverClass = engine.getWebDriver().getClass();
-        SelfHealingProxyInvocationHandler handler = new SelfHealingProxyInvocationHandler(engine);
-        return ProxyFactory.createDriverProxy(classLoader, handler, driverClass);
+        return SelfHealingEngine.create(delegate, config);
     }
 }

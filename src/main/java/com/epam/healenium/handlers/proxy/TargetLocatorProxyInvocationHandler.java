@@ -26,7 +26,7 @@ class TargetLocatorProxyInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result = method.invoke(delegate, args);
         return (result instanceof WebDriver && !(result instanceof SelfHealingDriver))
-                ? SelfHealingDriver.create(engine)
+                ? SelfHealingEngine.create(engine)
                 : result;
     }
 
