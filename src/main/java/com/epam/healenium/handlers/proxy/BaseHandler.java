@@ -521,6 +521,8 @@ public abstract class BaseHandler implements InvocationHandler {
         return result.map(Scored::getValue);
     }
 
+   private static int imageCounter = 1;
+
     private String captureScreen(By by) {
         WebElement element = this.findElement(by);
         String path;
@@ -530,10 +532,12 @@ public abstract class BaseHandler implements InvocationHandler {
             WebDriver augmentedDriver = new Augmenter().augment(this.driver);
             byte[] source = ((TakesScreenshot)augmentedDriver).getScreenshotAs(OutputType.BYTES);
             FileHandler.createDir(new File(this.engine.getScreenshotPath()));
-            File file = new File(this.engine.getScreenshotPath() + "screenshot_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MMM-yyyy-hh-mm-ss").withLocale(Locale.US)) + ".png");
+            File file = new File(this.engine.getScreenshotPath() + "screenshot_image_" + imageCounter + ".png");
             Files.write(file.toPath(), source, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
             path = file.getPath().replaceAll("\\\\", "/");
             path = ".." + path.substring(path.indexOf("/sc"));
+
+            imageCounter++;
         } catch (IOException e) {
             path = "Failed to capture screenshot: " + e.getMessage();
         }

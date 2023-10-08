@@ -36,10 +36,16 @@ public class Test {
         driver.manage().window().maximize();
         driver.get(url);
 
-        By locator = By.xpath("//*[@id=\"loginButton\"]");
+        By username = By.xpath("//input[@id='username']");
+        By password = By.xpath("//input[@id='password']");
+        By login = By.xpath("//*[@id=\"loginButton\"]");
 
-        WebElement element = driver.findElement(locator);
-        element.click();
+
+        driver.findElement(username).sendKeys("hello");
+        driver.findElement(password).sendKeys("hello");
+        driver.findElement(login).click();
+
+
         driver.quit();
     }
 }

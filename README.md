@@ -1,6 +1,9 @@
 # SelfHealingDriver
 
 The `SelfHealingDriver` interface is a part of the Self-Healing WebDriver framework. It extends the standard WebDriver interface and provides additional functionality for self-healing capabilities in your automation tests. This is inspired from Helenium-web library here i simplified setup with SelfHealingDriver.setup() method along with few improvements.
+It will Generate Heal Report that you can see in base path (Heal-output).
+[View HTML Report](heal-output/reports/index.html)
+
 
 ## Getting Started
 

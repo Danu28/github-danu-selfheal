@@ -1,7 +1,10 @@
 package com.epam.healenium.utils;
 
+import org.openqa.selenium.io.FileHandler;
+
 import java.io.*;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -10,8 +13,8 @@ import java.util.Properties;
  */
 public class ConfigFactory {
 
-    private static final String CONFIG_DIRECTORY = "HealConfig";
-    private static final String CONFIG_FILE_PATH = CONFIG_DIRECTORY + "/application.properties";
+    private static final String CONFIG_DIRECTORY = "HealConfig/";
+    private static final String CONFIG_FILE_PATH = CONFIG_DIRECTORY + "application.properties";
 
     private ConfigFactory() {
         // Private constructor to prevent instantiation
@@ -44,7 +47,7 @@ public class ConfigFactory {
     }
 
     private static Properties createDefaultConfig() {
-        createDirectoryIfNeeded(CONFIG_DIRECTORY);
+        FileHandler.createDir(new File(CONFIG_DIRECTORY));
 
         if (new File(CONFIG_FILE_PATH).exists())
             return getConfig(CONFIG_FILE_PATH);
@@ -52,9 +55,9 @@ public class ConfigFactory {
         // Define default properties
         Properties properties = new Properties();
         properties.setProperty("recovery-tries", "3");
-        properties.setProperty("basePath", "build/selenium");
-        properties.setProperty("reportPath", "build/reports");
-        properties.setProperty("screenshotPath", "build/screenshots/");
+        properties.setProperty("basePath", "heal-output/selenium");
+        properties.setProperty("reportPath", "heal-output/reports");
+        properties.setProperty("screenshotPath", "heal-output/screenshots/");
         properties.setProperty("heal-enabled", "true");
 
         try (FileOutputStream outputStream = new FileOutputStream(CONFIG_FILE_PATH)) {
@@ -72,26 +75,15 @@ public class ConfigFactory {
      */
     public static void setConfig() {
         Properties config = createDefaultConfig();
-        createDirectoryIfNeeded(config.getProperty("basePath"));
-        createDirectoryIfNeeded(config.getProperty("reportPath"));
-        createDirectoryIfNeeded(config.getProperty("screenshotPath"));
+        FileHandler.createDir(new File(config.getProperty("basePath")));
+        FileHandler.createDir(new File(config.getProperty("reportPath")));
+        FileHandler.createDir(new File(config.getProperty("screenshotPath")));
+
         cleanDirectory(Paths.get(config.getProperty("screenshotPath")).toFile());
 
-        createSupportFile("HealConfig/itemsWithAttributes.js", script.jsScript);
-        createSupportFile("HealConfig/skippedAttributes.txt", script.skippedAttribute);
-        createSupportFile("build/reports/index.html", script.index);
-    }
-
-    private static void createDirectoryIfNeeded(String dirPath) {
-        Path directoryPath = Paths.get(dirPath);
-        if (!Files.exists(directoryPath)) {
-            try {
-                Files.createDirectories(directoryPath);
-                System.out.println("Directory created successfully: " + dirPath);
-            } catch (IOException e) {
-                throw new RuntimeException("Error creating directory: " + e.getMessage(), e);
-            }
-        }
+        createSupportFile(CONFIG_DIRECTORY+"itemsWithAttributes.js", script.jsScript);
+        createSupportFile(CONFIG_DIRECTORY+"skippedAttributes.txt", script.skippedAttribute);
+        createSupportFile(config.getProperty("reportPath")+"/index.html", script.index);
     }
 
     public static void createSupportFile(String fileName, String content) {
@@ -140,13 +132,6 @@ public class ConfigFactory {
                     System.err.println("Failed to delete file: " + file.getAbsolutePath());
                 }
             }
-        }
-
-        // After deleting all files and subdirectories, delete the directory itself
-        if (directory.delete()) {
-            System.out.println("Deleted directory: " + directory.getAbsolutePath());
-        } else {
-            System.err.println("Failed to delete directory: " + directory.getAbsolutePath());
         }
     }
 }

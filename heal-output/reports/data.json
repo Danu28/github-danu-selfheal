@@ -1,0 +1,1 @@
+{"reportName":"Healing Report","endTime":null,"elementsInfo":[{"failedLocatorValue":"//*[@id=\"loginButton\"]","failedLocatorType":"By.xpath","healedLocatorValue":"input#loginButton1","healedLocatorType":"By.cssSelector","screenShotPath":"../screenshots/screenshot_image_1.png","pageName":"Login Page"}]}
