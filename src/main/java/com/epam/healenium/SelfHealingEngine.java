@@ -47,7 +47,14 @@ public class SelfHealingEngine {
     private final WebDriver webDriver;
     private final PathStorage storage;
     private final int recoveryTries;
+
+    private double matchScrore;
     private final List<Set<SelectorComponent>> selectorDetailLevels;
+
+    public double getMatchScore()
+    {
+        return matchScrore;
+    }
 
     /**
      * Constructs a SelfHealingEngine instance.
@@ -60,7 +67,7 @@ public class SelfHealingEngine {
         this.config = config;
         this.storage = new FileSystemPathStorage(config);
         this.recoveryTries = Integer.parseInt(config.getProperty("recovery-tries"));
-
+        this.matchScrore = Double.parseDouble(config.getProperty("match-score"));
         // Initialize selectorDetailLevels
         this.selectorDetailLevels = initSelectorDetailLevels();
     }

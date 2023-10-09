@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class SelfHealingProxyInvocationHandler extends BaseHandler {
     private static final Logger log = LoggerFactory.getLogger(SelfHealingProxyInvocationHandler.class);
@@ -41,6 +43,9 @@ public class SelfHealingProxyInvocationHandler extends BaseHandler {
             case "findElement":
                 WebElement element = this.findElement((By) args[0]);
                 return Optional.ofNullable(element).map(it -> this.wrapElement(it, loader)).orElse(null);
+            case "findElements":
+                List<WebElement> elements = this.findElements((By) args[0]);
+                return elements.stream().map(it -> wrapElement(it, loader)).collect(Collectors.toList());
             case "getCurrentEngine":
                 return this.engine;
             case "getDelegate":
