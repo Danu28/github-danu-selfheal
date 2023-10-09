@@ -10,6 +10,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.io.*;
 import java.net.MalformedURLException;
+import java.util.List;
 import java.util.Properties;
 
 public class Test {
@@ -39,13 +40,20 @@ public class Test {
         By username = By.xpath("//input[@id='username']");
         By password = By.xpath("//input[@id='password']");
         By login = By.xpath("//*[@id=\"loginButton\"]");
+        By eles = By.xpath("//input[@name='D']");
 
 
         driver.findElement(username).sendKeys("hello");
-        driver.findElement(password).sendKeys("hello");
-        driver.findElement(login).click();
+//        driver.findElement(password).sendKeys("hello");
+//        driver.findElement(login).click();
+//        int i = 1;
+//        List<WebElement> elements = driver.findElements(eles);
+//        for (WebElement webElement : elements) {
+//            webElement.sendKeys("user "+i);
+//            i++;
+//        }
+//        System.out.println(elements.size());
 
-
-        driver.quit();
+//        driver.quit();
     }
 }

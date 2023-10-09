@@ -386,21 +386,22 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public abstract class BaseHandler implements InvocationHandler {
     private static final Logger log = LoggerFactory.getLogger(BaseHandler.class);
     private final LoadingCache<PageAwareBy, WebElement> stash;
     protected final SelfHealingEngine engine;
     protected final WebDriver driver;
-    private final LocatorInfo info = new LocatorInfo();
+    final LocatorInfo info = new LocatorInfo();
 
     /**
      * Constructor for BaseHandler.
@@ -414,7 +415,7 @@ public abstract class BaseHandler implements InvocationHandler {
                 .maximumSize(300L)
                 .expireAfterWrite(10L, TimeUnit.SECONDS)
                 .build(new CacheLoader<PageAwareBy, WebElement>() {
-                    public WebElement load(@NotNull PageAwareBy key) {
+                    public @NotNull WebElement load(@NotNull PageAwareBy key) {
                         return BaseHandler.this.lookUp(key);
                     }
                 });
@@ -437,6 +438,20 @@ public abstract class BaseHandler implements InvocationHandler {
         }
     }
 
+    // added
+    protected List<WebElement> findElements(By by) {
+        try {
+            PageAwareBy pageBy = awareBy(by);
+            By inner = pageBy.getBy();
+            if (engine.isHealingEnabled()) {
+                return lookUpAll(pageBy);
+            }
+            return driver.findElements(inner);
+        } catch (Exception ex) {
+            throw new NoSuchElementException("Failed to find elements using " + by.toString(), ex);
+        }
+    }
+
     /**
      * Look up a WebElement using a PageAwareBy locator.
      *
@@ -451,7 +466,7 @@ public abstract class BaseHandler implements InvocationHandler {
             return element;
         } catch (NoSuchElementException e) {
             log.warn("Failed to find an element using locator {}\nReason: {}\nTrying to heal...", key.getBy().toString(), e.getMessage());
-            return this.heal(key, e).orElseThrow(() -> e);
+            return heal(key, e).orElseThrow(() -> e);
         }
     }
 
@@ -471,7 +486,44 @@ public abstract class BaseHandler implements InvocationHandler {
         });
     }
 
-    private void reportFailedInfo(PageAwareBy by, LocatorInfo.Entry infoEntry, By healed) {
+    //added
+    protected List<WebElement> healAll(PageAwareBy pageBy, NoSuchElementException e) {
+        List<WebElement> healedElements = new ArrayList<>();
+        Optional<List<By>> healedLocators = healLocators(pageBy);
+
+        if (healedLocators.isPresent()) {
+            LocatorInfo.Entry entry = this.reportBasicInfo(pageBy, e);
+            for (By healed : healedLocators.get()) {
+                reportFailedInfo(pageBy, entry, healed);
+                engine.saveLocator(info);
+                healedElements.addAll(driver.findElements(healed));
+            }
+        }
+
+        return healedElements;
+    }
+
+    // added
+    protected List<WebElement> lookUpAll(PageAwareBy key) {
+        List<WebElement> elements = new ArrayList<>();
+        try {
+            List<WebElement> foundElements = this.driver.findElements(key.getBy());
+            for (WebElement element : foundElements) {
+                this.engine.savePath(key, element);
+                elements.add(element);
+            }
+            if (elements.isEmpty())
+                throw new NoSuchElementException("No elements found using locator " + key.getBy().toString());
+            else
+                return elements;
+        } catch (NoSuchElementException e) {
+            log.warn("Failed to find elements using locator {}\nReason: {}\nTrying to heal...", key.getBy().toString(), e.getMessage());
+            return this.healAll(key, e);
+        }
+    }
+
+
+    void reportFailedInfo(PageAwareBy by, LocatorInfo.Entry infoEntry, By healed) {
         String failedByValue = by.getBy().toString();
         int splitIndex = failedByValue.indexOf(":");
         infoEntry.setFailedLocatorType(failedByValue.substring(0, splitIndex).trim());
@@ -491,7 +543,7 @@ public abstract class BaseHandler implements InvocationHandler {
         }
     }
 
-    private LocatorInfo.Entry reportBasicInfo(PageAwareBy pageBy, NoSuchElementException e) {
+    LocatorInfo.Entry reportBasicInfo(PageAwareBy pageBy, NoSuchElementException e) {
         String targetClass = pageBy.getPageName();
         Optional<StackTraceElement> elOpt = StackUtils.getElementByClass(e.getStackTrace(), targetClass);
         return (LocatorInfo.Entry) elOpt.map((el) -> {
@@ -521,16 +573,49 @@ public abstract class BaseHandler implements InvocationHandler {
         return result.map(Scored::getValue);
     }
 
-   private static int imageCounter = 1;
+    //added
+    private boolean isScoreMatch(Scored<By> scoredBy, double threshold) {
+        double elementScore = scoredBy.getScore();
+        return elementScore >= threshold;
+    }
+
+    //added
+    protected Optional<List<By>> healLocators(PageAwareBy pageBy) {
+        log.debug("* healLocators start: " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+        List<Scored<By>> choices = this.engine.findNewLocations(pageBy, this.pageSource());
+
+        double scoreThreshold = engine.getMatchScore();
+        List<Scored<By>> filteredChoices = choices.stream()
+                .filter(scoredBy -> isScoreMatch(scoredBy, scoreThreshold))
+                .collect(Collectors.toList());
+
+        List<By> healedLocators = filteredChoices.stream()
+                .map(Scored::getValue)
+                .collect(Collectors.toList());
+
+        // Reverse the list
+        Collections.reverse(healedLocators);
+
+        if (healedLocators.isEmpty()) {
+            log.warn("No new element locators have been found");
+            return Optional.empty();
+        }
+
+        log.debug("* healLocators finish: " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+        return Optional.of(healedLocators);
+    }
+
+
+    private static int imageCounter = 1;
 
     private String captureScreen(By by) {
         WebElement element = this.findElement(by);
         String path;
         try {
-            JavascriptExecutor jse = (JavascriptExecutor)this.driver;
+            JavascriptExecutor jse = (JavascriptExecutor) this.driver;
             jse.executeScript("arguments[0].style.border='3px solid red'", element);
             WebDriver augmentedDriver = new Augmenter().augment(this.driver);
-            byte[] source = ((TakesScreenshot)augmentedDriver).getScreenshotAs(OutputType.BYTES);
+            byte[] source = ((TakesScreenshot) augmentedDriver).getScreenshotAs(OutputType.BYTES);
             FileHandler.createDir(new File(this.engine.getScreenshotPath()));
             File file = new File(this.engine.getScreenshotPath() + "screenshot_image_" + imageCounter + ".png");
             Files.write(file.toPath(), source, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
@@ -544,14 +629,14 @@ public abstract class BaseHandler implements InvocationHandler {
         return path;
     }
 
-    private String pageSource() {
+    String pageSource() {
         return this.driver instanceof JavascriptExecutor ?
-                ((JavascriptExecutor)this.driver).executeScript("return document.body.outerHTML;").toString() :
+                ((JavascriptExecutor) this.driver).executeScript("return document.body.outerHTML;").toString() :
                 this.driver.getPageSource();
     }
 
     protected PageAwareBy awareBy(By by) {
-        return by instanceof PageAwareBy ? (PageAwareBy)by : PageAwareBy.by(this.driver.getTitle(), by);
+        return by instanceof PageAwareBy ? (PageAwareBy) by : PageAwareBy.by(this.driver.getTitle(), by);
     }
 
     protected void clearStash() {

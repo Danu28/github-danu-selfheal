@@ -55,6 +55,7 @@ public class ConfigFactory {
         // Define default properties
         Properties properties = new Properties();
         properties.setProperty("recovery-tries", "3");
+        properties.setProperty("match-score", ".75");
         properties.setProperty("basePath", "heal-output/selenium");
         properties.setProperty("reportPath", "heal-output/reports");
         properties.setProperty("screenshotPath", "heal-output/screenshots/");
