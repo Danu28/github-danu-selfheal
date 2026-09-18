@@ -27,7 +27,7 @@ public final class ProxyFactory {
      * @return A proxy instance of the WebDriver.
      */
     public static <T extends WebDriver> SelfHealingDriver createDriverProxy(ClassLoader loader, InvocationHandler handler, Class<T> clazz) {
-        Class<?>[] interfaces = Stream.concat(Arrays.stream(clazz.getInterfaces()), Stream.of(JavascriptExecutor.class, SelfHealingDriver.class, Interactive.class, Interactive.class))
+        Class<?>[] interfaces = Stream.concat(Arrays.stream(clazz.getInterfaces()), Stream.of(JavascriptExecutor.class, SelfHealingDriver.class, Interactive.class))
                 .distinct()
                 .toArray(Class<?>[]::new);
         return (SelfHealingDriver) Proxy.newProxyInstance(loader, interfaces, handler);

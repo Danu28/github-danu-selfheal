@@ -88,22 +88,10 @@ public class ConfigFactory {
     }
 
     public static void createSupportFile(String fileName, String content) {
-        try {
-            if (new File(fileName).exists())
-                return;
-
-            // Create a FileWriter with the specified file name
-            FileWriter fileWriter = new FileWriter(fileName);
-
-            // Create a BufferedWriter for efficient writing
-            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-
-            // Write the content to the file
+        if (new File(fileName).exists())
+            return;
+        try (BufferedWriter bufferedWriter = Files.newBufferedWriter(Paths.get(fileName))) {
             bufferedWriter.write(content);
-
-            // Close the BufferedWriter to flush and save the content to the file
-            bufferedWriter.close();
-
             System.out.println("File '" + fileName + "' has been created successfully.");
         } catch (IOException e) {
             System.err.println("An error occurred while creating the File: " + e.getMessage());
