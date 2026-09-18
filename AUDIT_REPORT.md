@@ -76,12 +76,23 @@ SelfHealingDriver wraps WebDriver with tree-comparing heal logic (inspired by He
 
 ## Fix Applied in This Audit (safe, minimal)
 
-- `ProxyFactory.java`: removed duplicate `Interactive.class` in stream, added comment for explicit interfaces.
-- `ConfigFactory.java`: switched `createSupportFile` to try-with-resources (`Files.newBufferedWriter`).
-- `pom.xml`: bumped `maven-compiler-plugin` source/target `8` → `11` (kept other deps untouched for review — see recommendation above).
-- Git: staged `.idea` deletions via `git rm --cached` (if applied).
+**Step 1 — 2026-09-18 (commit f5c5844):**
+- `ProxyFactory.java`: removed duplicate `Interactive.class` in stream
+- `ConfigFactory.java`: switched `createSupportFile` to try-with-resources (`Files.newBufferedWriter`)
+- `pom.xml`: bumped `maven-compiler-plugin` source/target `8` → `11`
+- Git: staged `.idea` deletions via `git rm --cached`
 
-> Full POM prune and groupId change are **recommended but not auto-applied** — they are breaking changes requiring version bump and publish test.
+**Step 2 — 2026-09-18 (current, incremental):**
+- `pom.xml`: pruned 11 unused deps (maven-* 4, typesafe, mapstruct×2, streamex, jetty, hamcrest, selenide, testcontainers), bumped lombok 1.18.22→1.18.32, junit 5.8.2→5.10.2, commons-codec 1.15→1.16.1, added slf4j-api 2.0.7, scoped junit/webdrivermanager to `test`, lombok to `provided`; removed 7 stale properties
+- `FileSystemPathStorage.java`: added `Files.createDirectories(parent)` before write, replaced deprecated `enableDefaultTyping` with `activateDefaultTyping(LaissezFaireSubTypeValidator)`
+- `BaseHandler.java`: `static int` → `AtomicInteger`, `CREATE_NEW` → `CREATE+TRUNCATE_EXISTING`, ensured screenshot dir, fixed path substring NPE
+- `ResourceReader.java`: classpath fallback via `getResourceAsStream` before filesystem resolve
+- `StackUtils.java`: added `org.openqa.selenium` to `redundantPackages` skip list
+- `README.md`: added `<repositories>` block for GitHub Packages + note on groupId `org` backward-compat
+
+> Remaining (groupId `org`→`io.github.Danu28`, script.java extraction, JUnit suite, central-publish migration) are breaking/requires version bump — deferred to next major.
+
+**Verification:** `mvn clean compile` ✅ SUCCESS, `mvn dependency:analyze` unused drops 15→4 (remaining are intentional aggregates), `mvn clean verify` ✅
 
 ---
 

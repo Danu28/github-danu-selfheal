@@ -606,7 +606,7 @@ public abstract class BaseHandler implements InvocationHandler {
     }
 
 
-    private static int imageCounter = 1;
+    private static final java.util.concurrent.atomic.AtomicInteger imageCounter = new java.util.concurrent.atomic.AtomicInteger(1);
 
     private String captureScreen(By by) {
         WebElement element = this.findElement(by);
@@ -617,12 +617,13 @@ public abstract class BaseHandler implements InvocationHandler {
             WebDriver augmentedDriver = new Augmenter().augment(this.driver);
             byte[] source = ((TakesScreenshot) augmentedDriver).getScreenshotAs(OutputType.BYTES);
             FileHandler.createDir(new File(this.engine.getScreenshotPath()));
-            File file = new File(this.engine.getScreenshotPath() + "screenshot_image_" + imageCounter + ".png");
-            Files.write(file.toPath(), source, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+            int count = imageCounter.getAndIncrement();
+            File file = new File(this.engine.getScreenshotPath() + "screenshot_image_" + count + ".png");
+            Files.createDirectories(file.toPath().getParent());
+            Files.write(file.toPath(), source, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
             path = file.getPath().replaceAll("\\\\", "/");
-            path = ".." + path.substring(path.indexOf("/sc"));
-
-            imageCounter++;
+            int scIndex = path.indexOf("/sc");
+            path = scIndex != -1 ? ".." + path.substring(scIndex) : path;
         } catch (IOException e) {
             path = "Failed to capture screenshot: " + e.getMessage();
         }

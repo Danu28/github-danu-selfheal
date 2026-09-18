@@ -54,7 +54,8 @@ public class FileSystemPathStorage implements PathStorage {
         module.addSerializer(Node.class, new NodeSerializer());
         module.addDeserializer(Node.class, new NodeDeserializer());
         ObjectMapper objectMapper = new ObjectMapper().registerModule(module);
-        objectMapper.enableDefaultTyping(DefaultTyping.NON_FINAL, As.PROPERTY);
+        com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator validator = com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator.instance;
+        objectMapper.activateDefaultTyping(validator, DefaultTyping.NON_FINAL, As.PROPERTY);
         return objectMapper;
     }
 
@@ -70,6 +71,9 @@ public class FileSystemPathStorage implements PathStorage {
         Path persistedNodePath = getPersistedNodePath(locator, context);
 
         try {
+            if (persistedNodePath.getParent() != null) {
+                Files.createDirectories(persistedNodePath.getParent());
+            }
             byte[] newContent = objectMapper.writeValueAsBytes(nodes);
             Files.write(persistedNodePath, newContent);
         } catch (JsonProcessingException var7) {

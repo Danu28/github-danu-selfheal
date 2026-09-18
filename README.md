@@ -1,9 +1,8 @@
 # SelfHealingDriver
 
-The `SelfHealingDriver` interface is a part of the Self-Healing WebDriver framework. It extends the standard WebDriver interface and provides additional functionality for self-healing capabilities in your automation tests. This is inspired from Helenium-web library here i simplified setup with SelfHealingDriver.setup() method along with few improvements.
+The `SelfHealingDriver` interface is a part of the Self-Healing WebDriver framework. It extends the standard WebDriver interface and provides additional functionality for self-healing capabilities in your automation tests. This is inspired from Healenium-web library here i simplified setup with SelfHealingDriver.setup() method along with few improvements.
 It will Generate Heal Report that you can see in base path (Heal-output).
 [View HTML Report](heal-output/reports/index.html)
-
 
 ## Getting Started
 
@@ -12,13 +11,20 @@ It will Generate Heal Report that you can see in base path (Heal-output).
 Before using the `SelfHealingDriver`, make sure you have the following prerequisites:
 
 - A WebDriver compatible browser driver (e.g., ChromeDriver, GeckoDriver, etc.) installed and configured.
-- Java development environment set up on your machine.
+- Java 11+ development environment set up on your machine.
   
 ### Adding Self-Healing WebDriver Dependency
 
-To add the Self-Healing WebDriver dependency to your Maven project, you can include the following dependency in your `pom.xml` file:
+To add the Self-Healing WebDriver dependency to your Maven project, include the GitHub Packages repository and the dependency in your `pom.xml` file:
 
 ```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/Danu28/github-danu-selfheal</url>
+    </repository>
+</repositories>
+
 <dependencies>
     <!-- Self-Healing WebDriver -->
     <dependency>
@@ -29,6 +35,7 @@ To add the Self-Healing WebDriver dependency to your Maven project, you can incl
     <!-- Other dependencies -->
 </dependencies>
 ```
+> **Note:** `groupId: org` is kept for backward compatibility. For Maven Central publishing use `io.github.Danu28` (see `AUDIT_REPORT.md` H-04).
 
 ### Setup
 To configure the `SelfHealingDriver`, you can use the `setup` method provided by the interface. It sets up the WebDriver with the appropriate settings using `ConfigFactory`. Here's how to use it:

@@ -27,15 +27,24 @@ public class ResourceReader {
      * @throws IllegalStateException If an error occurs while reading the resource.
      */
     public static <T> T readResource(String filePath, Function<Stream<String>, T> function) {
+        // Try classpath first (works when packaged as jar)
+        InputStream classpathStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(filePath);
+        if (classpathStream == null) {
+            classpathStream = ResourceReader.class.getClassLoader().getResourceAsStream(filePath);
+        }
+        if (classpathStream != null) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(classpathStream, StandardCharsets.UTF_8))) {
+                return function.apply(reader.lines());
+            } catch (IOException e) {
+                throw new IllegalStateException("Error reading classpath resource: " + filePath, e);
+            }
+        }
         try {
             Path resourcePath = Paths.get(filePath);
-
-            // If the path is relative, resolve it against the current working directory
             if (!resourcePath.isAbsolute()) {
                 Path currentDirectory = Paths.get("").toAbsolutePath();
                 resourcePath = currentDirectory.resolve(resourcePath);
             }
-
             try (InputStream stream = Files.newInputStream(resourcePath);
                  BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
                 return function.apply(reader.lines());

@@ -78,7 +78,7 @@ public final class StackUtils {
     private static Predicate<StackTraceElement> redundantPackages() {
         return value -> {
             Stream<String> skippingPackageStream = Stream.of(
-                    "sun.reflect", "java.lang", "org.gradle", "org.junit", "java.util", "com.sun", "com.google"
+                    "sun.reflect", "java.lang", "org.gradle", "org.junit", "java.util", "com.sun", "com.google", "org.openqa.selenium"
             );
             return skippingPackageStream.noneMatch(s -> value.getClassName().startsWith(s));
         };
