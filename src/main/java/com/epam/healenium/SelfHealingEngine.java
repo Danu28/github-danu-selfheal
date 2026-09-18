@@ -5,9 +5,9 @@
 package com.epam.healenium;
 
 import com.epam.healenium.annotation.DisableHealing;
-import com.epam.healenium.data.FileSystemPathStorage;
 import com.epam.healenium.data.LocatorInfo;
 import com.epam.healenium.data.PathStorage;
+import com.epam.healenium.data.PathStorageFactory;
 import com.epam.healenium.handlers.proxy.SelfHealingProxyInvocationHandler;
 import com.epam.healenium.treecomparing.*;
 import com.epam.healenium.utils.ProxyFactory;
@@ -65,7 +65,7 @@ public class SelfHealingEngine {
     SelfHealingEngine(WebDriver delegate, Properties config) {
         this.webDriver = delegate;
         this.config = config;
-        this.storage = new FileSystemPathStorage(config);
+        this.storage = PathStorageFactory.create(config);
         this.recoveryTries = Integer.parseInt(config.getProperty("recovery-tries"));
         this.matchScore = Double.parseDouble(config.getProperty("match-score"));
         // Initialize selectorDetailLevels

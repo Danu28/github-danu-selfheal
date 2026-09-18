@@ -82,7 +82,7 @@ SelfHealingDriver wraps WebDriver with tree-comparing heal logic (inspired by He
 - `pom.xml`: bumped `maven-compiler-plugin` source/target `8` → `11`
 - Git: staged `.idea` deletions via `git rm --cached`
 
-**Step 2 — 2026-09-18 (current, incremental):**
+**Step 2 — 2026-09-18 (6fa55a1):**
 - `pom.xml`: pruned 11 unused deps (maven-* 4, typesafe, mapstruct×2, streamex, jetty, hamcrest, selenide, testcontainers), bumped lombok 1.18.22→1.18.32, junit 5.8.2→5.10.2, commons-codec 1.15→1.16.1, added slf4j-api 2.0.7, scoped junit/webdrivermanager to `test`, lombok to `provided`; removed 7 stale properties
 - `FileSystemPathStorage.java`: added `Files.createDirectories(parent)` before write, replaced deprecated `enableDefaultTyping` with `activateDefaultTyping(LaissezFaireSubTypeValidator)`
 - `BaseHandler.java`: `static int` → `AtomicInteger`, `CREATE_NEW` → `CREATE+TRUNCATE_EXISTING`, ensured screenshot dir, fixed path substring NPE
@@ -90,9 +90,18 @@ SelfHealingDriver wraps WebDriver with tree-comparing heal logic (inspired by He
 - `StackUtils.java`: added `org.openqa.selenium` to `redundantPackages` skip list
 - `README.md`: added `<repositories>` block for GitHub Packages + note on groupId `org` backward-compat
 
-> Remaining (groupId `org`→`io.github.Danu28`, script.java extraction, JUnit suite, central-publish migration) are breaking/requires version bump — deferred to next major.
+**Step 3 — 2026-09-18 (1+2+3+4):**
+- `pom.xml`: groupId `org`→`io.github.danu28`, version `1.0-SNAPSHOT`→`2.0.0-SNAPSHOT` (breaking H-04), added `com.h2database:h2:2.2.224` optional, added `org.mockito:mockito-core:5.8.0` test, added `heal.acceptUrl`/`storage.mode`/`heal.db` properties
+- `src/main/resources/heal-report/*`: extracted `script.java` 27KB HTML/JS to `index.html`, `itemsWithAttributes.js`, `skippedAttributes.txt` (M-06), updated `ConfigFactory` to load via classpath `loadResourceOrFallback` + replace `http://localhost:8091` with `heal.acceptUrl` property
+- `ConfigFactory.java`: added `heal.acceptUrl`, `storage.mode=file`, `heal.db` defaults + resource loader
+- `script.java`: marked `@Deprecated` with javadoc pointer to resources
+- `PathStorageFactory.java` + `H2PathStorage.java`: pluggable storage (file default, H2 optional via reflection, MVStore WAL, `AUTO_SERVER=TRUE`) — single jar stays lean, H2 only when `storage.mode=h2`
+- `SelfHealingEngine.java`: `new FileSystemPathStorage` → `PathStorageFactory.create`
+- `FileSystemPathStorage.java`: fallback plain mapper for reading without @class wrapper (fixes test roundtrip)
+- `DataStorageTest.java` + `HealingTest.java`: 12 tests (roundtrip, factory file/h2, ResourceReader, StackUtils, DisableHealing, ProxyFactory, LocatorInfo) — `mvn test` now 12 pass
+- `HealConfig/application.properties`: added `heal.acceptUrl`, `storage.mode`, `heal.db`
 
-**Verification:** `mvn clean compile` ✅ SUCCESS, `mvn dependency:analyze` unused drops 15→4 (remaining are intentional aggregates), `mvn clean verify` ✅
+**Verification:** `mvn test` 12 pass ✅, `mvn clean verify` ✅, `mvn dependency:analyze` ✅, `mvn clean compile` ✅
 
 ---
 

@@ -28,14 +28,27 @@ To add the Self-Healing WebDriver dependency to your Maven project, include the 
 <dependencies>
     <!-- Self-Healing WebDriver -->
     <dependency>
-            <groupId>org</groupId>
+            <groupId>io.github.danu28</groupId>
             <artifactId>github-danu-selfheal</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>2.0.0-SNAPSHOT</version>
         </dependency>
     <!-- Other dependencies -->
 </dependencies>
 ```
-> **Note:** `groupId: org` is kept for backward compatibility. For Maven Central publishing use `io.github.Danu28` (see `AUDIT_REPORT.md` H-04).
+> **Note:** **2.0.0-SNAPSHOT breaking** — `groupId` `org`→`io.github.danu28` (see `AUDIT_REPORT.md` H-04). For `1.x` use `org:github-danu-selfheal:1.0-SNAPSHOT`. All `2.x` uses `io.github.danu28`.
+
+### Storage modes
+
+- `storage.mode=file` (default) — per-locator `heal-output/selenium/<page>_<hash>` files, best for large parallel suite (see `STORAGE_ADVICE.md`).
+- `storage.mode=h2` — single `heal.db` via H2 `2.2.224` optional dep (`AUTO_SERVER=TRUE`, MVStore). Enable with:
+  ```properties
+  storage.mode=h2
+  heal.db=heal-output/heal.db
+  ```
+  ```xml
+  <dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><version>2.2.224</version></dependency>
+  ```
+- `heal.acceptUrl` — configures report `Accept` endpoint (default `http://localhost:8091`), replaced at `setup()` time.
 
 ### Setup
 To configure the `SelfHealingDriver`, you can use the `setup` method provided by the interface. It sets up the WebDriver with the appropriate settings using `ConfigFactory`. Here's how to use it:

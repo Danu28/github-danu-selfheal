@@ -3,6 +3,7 @@ package com.epam.healenium.utils;
 import org.openqa.selenium.io.FileHandler;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -60,6 +61,9 @@ public class ConfigFactory {
         properties.setProperty("reportPath", "heal-output/reports");
         properties.setProperty("screenshotPath", "heal-output/screenshots/");
         properties.setProperty("heal-enabled", "true");
+        properties.setProperty("heal.acceptUrl", "http://localhost:8091");
+        properties.setProperty("storage.mode", "file");
+        properties.setProperty("heal.db", "heal-output/heal.db");
 
         try (FileOutputStream outputStream = new FileOutputStream(CONFIG_FILE_PATH)) {
             properties.store(outputStream, "Application Configuration Properties");
@@ -82,9 +86,23 @@ public class ConfigFactory {
 
         cleanDirectory(Paths.get(config.getProperty("screenshotPath")).toFile());
 
-        createSupportFile(CONFIG_DIRECTORY+"itemsWithAttributes.js", script.jsScript);
-        createSupportFile(CONFIG_DIRECTORY+"skippedAttributes.txt", script.skippedAttribute);
-        createSupportFile(config.getProperty("reportPath")+"/index.html", script.index);
+        createSupportFile(CONFIG_DIRECTORY+"itemsWithAttributes.js", loadResourceOrFallback("heal-report/itemsWithAttributes.js", script.jsScript));
+        createSupportFile(CONFIG_DIRECTORY+"skippedAttributes.txt", loadResourceOrFallback("heal-report/skippedAttributes.txt", script.skippedAttribute));
+        String indexHtml = loadResourceOrFallback("heal-report/index.html", script.index);
+        String acceptUrl = config.getProperty("heal.acceptUrl", "http://localhost:8091");
+        indexHtml = indexHtml.replace("http://localhost:8091", acceptUrl);
+        createSupportFile(config.getProperty("reportPath")+"/index.html", indexHtml);
+    }
+
+    private static String loadResourceOrFallback(String resource, String fallback) {
+        try (InputStream is = ConfigFactory.class.getClassLoader().getResourceAsStream(resource)) {
+            if (is != null) {
+                return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            }
+        } catch (IOException e) {
+            // fallback to script constant
+        }
+        return fallback;
     }
 
     public static void createSupportFile(String fileName, String content) {

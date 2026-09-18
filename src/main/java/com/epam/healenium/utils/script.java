@@ -1,5 +1,10 @@
 package com.epam.healenium.utils;
 
+/**
+ * @deprecated Extracted to src/main/resources/heal-report/* — kept for backward compat.
+ * Use ConfigFactory classpath resources instead.
+ */
+@Deprecated
 public interface script {
 
     String jsScript = "var items = [];\n" +

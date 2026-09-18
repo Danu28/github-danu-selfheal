@@ -97,7 +97,15 @@ public class FileSystemPathStorage implements PathStorage {
         if (Files.exists(path)) {
             try {
                 byte[] bytes = Files.readAllBytes(path);
-                return objectMapper.readValue(bytes, List.class);
+                try {
+                    return objectMapper.readValue(bytes, objectMapper.getTypeFactory().constructCollectionType(List.class, Node.class));
+                } catch (Exception e) {
+                    // Fallback for files written without type wrapper (plain mapper)
+                    SimpleModule mod = new SimpleModule("node");
+                    mod.addDeserializer(Node.class, new NodeDeserializer());
+                    ObjectMapper plain = new ObjectMapper().registerModule(mod);
+                    return plain.readValue(bytes, plain.getTypeFactory().constructCollectionType(List.class, Node.class));
+                }
             } catch (IOException var5) {
                 throw new RuntimeException(var5);
             }

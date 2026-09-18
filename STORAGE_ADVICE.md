@@ -46,24 +46,25 @@ Knobs to add (optional, low risk):
 - Add `heal-output` per worker: `basePath=heal-output/${surefire.forkNumber}/selenium` avoids cross-worker `data.json` overwrite in `saveLocatorInfo`.
 - Rotate `heal-output` on CI: `git clean -fdx heal-output` before run, archive after.
 
-## If you still want H2 (design, not implemented yet)
+## H2 — now implemented as optional (2.0.0)
 
 ```properties
-heal.storage=h2
+storage.mode=h2
 heal.db=heal-output/heal.db
+heal.acceptUrl=http://localhost:8091
 ```
 ```xml
-<!-- pom optional, not in main -->
 <dependency>
   <groupId>com.h2database</groupId><artifactId>h2</artifactId><version>2.2.224</version><optional>true</optional>
 </dependency>
 ```
-Schema sketch:
+Implemented: `PathStorageFactory` (file default, H2 via reflection so main jar stays lean) + `H2PathStorage` (`heal_paths` + `heal_events`, `AUTO_SERVER=TRUE`, `LOCK_TIMEOUT=10000`, `MERGE INTO` for upsert, fallback `data.json` mirror). Switch via `storage.mode` — no code change needed.
+
+Schema:
 ```sql
-CREATE TABLE heal_paths(locatorHash VARCHAR(64) PRIMARY KEY, pageName VARCHAR(192), nodesJson CLOB, updatedAt TIMESTAMP);
-CREATE TABLE heal_events(id BIGINT AUTO_INCREMENT, failedType VARCHAR(64), failedValue CLOB, healedType VARCHAR(64), healedValue CLOB, pageName VARCHAR(192), createdAt TIMESTAMP);
+CREATE TABLE heal_paths(locatorHash VARCHAR(512) PRIMARY KEY, locator VARCHAR(2000), context VARCHAR(512), nodesJson CLOB, updatedAt TIMESTAMP);
+CREATE TABLE heal_events(id BIGINT AUTO_INCREMENT PRIMARY KEY, locatorInfo CLOB, createdAt TIMESTAMP);
 ```
-Keep `PathStorage` interface pluggable — `FileSystemPathStorage` default, `H2PathStorage` behind `storage.mode`.
 
 ## Bottom line
 
